@@ -1,0 +1,40 @@
+﻿## Сборка и бинарники (твои + расширенные)
+[Bb]in/
+[Oo]bj/
+[Aa]rm/
+[Aa]rm64/
+[Xx]64/
+[Xx]86/
+
+## Стандартные исключения .NET
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.patch
+*.diff
+
+## Visual Studio / VS Code / Rider
+.vs/
+.vscode/
+.idea/
+*.com.user
+*.ncrunchproject
+*.DotSettings.user
+
+## NuGet
+packages/
+*.nupkg
+# Обязательно игнорируем папку сборки NuGet
+project.lock.json
+project.assets.json
+
+## Тесты и отчеты
+TestResults/
+*.trx
+*.coverage
+
+## ОС
+Thumbs.db
+ehthumbs.db
+Desktop.ini
