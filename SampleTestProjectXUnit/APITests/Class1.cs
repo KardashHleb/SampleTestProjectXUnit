@@ -1,37 +1,29 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json.Linq;
 using RestSharp;
 using SampleTestProjectXUnit.Fixtures; // Чтобы видеть ApiEndpoints
+using System.Buffers.Text;
 using System.Net;
 using Xunit;
-using Newtonsoft.Json.Linq;
 
 namespace SampleTestProjectXUnit.ApiTests
 {
-    public class ProductApiTests
+   
+    public class ProductApiTests : BaseApiTest
     {
-        private readonly IConfiguration _config;
-
-        public ProductApiTests()
-        {
-            // Инициализируем конфиг
-            _config = new ConfigurationBuilder()
-                .SetBasePath(System.IO.Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json")
-                .Build();
-        }
+    
+      
 
         [Fact]
         public void Test_GetAllProducts_CleanCode()
         {
-            // 1. Берем базовый URL из конфига
-            var baseUrl = _config["ApiUrl"];
+          
 
-            // 2. Настраиваем клиента и запрос
-            var client = new RestClient(baseUrl);
+           
             var request = new RestRequest(ApiEndpoints.ProductsList, Method.Get);
 
             // 3. Выполняем
-            var response = client.Execute(request);
+            var response = Client.Execute(request);
 
             // --- ЧТО ПОПРАВИТЬ В ПРОВЕРКАХ ---
 
@@ -43,8 +35,27 @@ namespace SampleTestProjectXUnit.ApiTests
 
             // Проверяем, что в JSON есть поле "products" и это не пустой список
             Assert.True(json.ContainsKey("products"), "В ответе нет поля 'products'");
-            var products = (JArray)json["products"];
+            var products = json["products"] as JArray;
+            Assert.NotNull(products);
             Assert.NotEmpty(products);
+        }
+
+        [Fact]
+        public void Test_PostAllProducts_Returns405()
+        {
+            
+            var request = new RestRequest(ApiEndpoints.ProductsList, Method.Post);
+            var response = Client.Execute(request);
+
+            // 1. Проверяем, что сам запрос дошел успешно (сервер ответил 200)
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // 2. Парсим JSON и проверяем бизнес-логику ошибки внутри
+            var json = JObject.Parse(response.Content);
+
+            // Обратите внимание: в этом API код ответа внутри JSON называется "responseCode"
+            Assert.Equal(405, (int)json["responseCode"]);
+            Assert.Equal("This request method is not supported.", json["message"]?.ToString());
         }
     }
 }
