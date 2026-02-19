@@ -46,5 +46,23 @@ namespace SampleTestProjectXUnit.ApiTests
             var products = (JArray)json["products"];
             Assert.NotEmpty(products);
         }
+
+        [Fact]
+        public void Test_PostAllProducts_Returns405()
+        {
+            var baseUrl = _config["ApiUrl"];
+            var client = new RestClient(baseUrl);
+
+            // Используем Method.Post вместо Method.Get
+            var request = new RestRequest(ApiEndpoints.ProductsList, Method.Post);
+
+            var response = client.Execute(request);
+
+            // Проверяем статус код 405 (но будьте внимательны с этим API, см. примечание ниже)
+            Assert.Equal(HttpStatusCode.MethodNotAllowed, response.StatusCode);
+
+            var json = JObject.Parse(response.Content);
+            Assert.Equal("This request method is not supported.", json["message"]?.ToString());
+        }
     }
 }
